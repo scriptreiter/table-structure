@@ -1,0 +1,200 @@
+<html>
+  <head>
+    <title>
+      Labeler for Marking Cell Groundtruth
+    </title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js"></script>
+    <script type="text/javascript">
+      var image_info = {};
+      var curr_image = -1;
+      var base_image_url = 'http://levan.cs.washington.edu/nick/display/alternate/images/';
+      var images = [
+        '001-08.06.09.03.jpg','001-handbook-fig08.jpg','001-teabag-results-table.jpg','002-a03tab04.jpg','002-AirplaneDataTable.jpg','002-c7d59ef951f046118c874cc6727806b0.jpg.jpg','003-temp_table_4_graph.jpg','004-09fig02.jpg','004-4070565_orig.jpg','004-i-0816405bc873577a1d9f8ca5d7c351b7-2010-01-30_untitled_7.jpg','004-tt5-4.jpg','004-TTgrid.jpg','005-11fig04.jpg','005-5773247_orig.jpg','005-876612_orig.jpg','005-Data_2BChart_2BQR.jpg','006-ppt_img.jpg','006-TableRHvsLH.jpg','007-1732342.jpg','007-Data_Table_for_Recycling_Competition.jpg','008-lab_report_table1.jpg','008-READING_TABLES_GRAPHS_AND_CHARTS_01.jpg','009-a07tab01.jpg','009-ISM_2BJune_2B1_2BRelease.jpg','009-NW5uo.jpg','009-table.jpg','010-6953161_f260.jpg','010-figure_2B2-1.jpg','011-st201013t2.jpg','011-StylingE.jpg','011-Table-3.5-Grid-storage-technologies-compared.jpg','012-sample_table_heat.jpg','013-12466.jpg','013-table-22.jpg','014-3990b830d16c212e44fce56c3ab4dc1f.jpg.jpg','014-cooking-conversion-chart.jpg',
+        '014-text_table_object_01.jpg','016-txtfig3.jpg','016-U11L9Image7.jpg','017-108622F9-C596-4115-B4A0EEA4D7F2A39F.jpg','017-1109wog-table2.jpg','017-1961.jpg','017-accomodation_img8.jpg','018-cAQ4W.jpg','018-OceanSci_img003.jpg','018-oRIeJ.jpg','019-figure.jpg','020-0251.jpg','020-table.jpg','022-E8C6_clip_image004.jpg','022-imgf000150_0001.jpg','022-timestable.jpg','023-datatable.jpg','023-Measurement_and_Units_01.jpg','023-Screen_2520shot_25202013-01-15_2520at_252017.33.32.jpg','024-265880-table-3pitchfx-data-by-outcome-split-by-pitch.jpg','024-con2.jpg','025-08fig03.jpg','025-salarytablecomplete.jpg','026-maxresdefault.jpg','026-U11L9Image1.jpg','027-Screen_Shot_2013-12-11_at_2.42.49_PM.jpg','029-grid6.jpg','030-MDM12_CH03_Q1-1.jpg','030-n9a06t8.jpg','031-data-table.jpg','032-ScientificInquiry-28788.jpg','034-2qb94sw.jpg.jpg','034-EL_MSLS_MutationVarB1.jpg','034-jquery-grid-localization.jpg','035-08.06.01.04.jpg','035-dkny_women_size_intl_conv.jpg','036-table_1(1).jpg',
+        '037-StylingC.jpg','038-najo12-bdatatable.jpg','039-xFWNg.jpg','040-8300006ta1.jpg','041-lab_report_table4.jpg','042-lab_report_table3.jpg','044-O6IUX.jpg','045-EL_MSPS_Density20061.jpg','045-table.jpg','045-verizonsharedplans.jpg','046-jQuery-Plugin-To-Convert-JSON-Data-Into-Data-Grid-Columns.jpg','047-0078740436_q18_img1.jpg','048-DworakTable2.jpg','048-Times_2Btable_2Bgrid_2B2.jpg','048-tXuKb.jpg','049-science-sample-unit-1-table.jpg','050-8134626_orig.jpg','050-grid15.jpg','052-science2.jpg','053-5b3b06c579ae2dcb375209ed5da0cbc2.jpg.jpg','053-Data-Table_-_Example.jpg','056-Daltons_cool_table.jpg','056-Qualitative_Data.jpg','057-Times_2Btable_2Bgrid_2B1.jpg','059-0125-b2.jpg','059-Class7-data-handling8.jpg','060-a07tab01.jpg','062-OralWrittenFeedbackTable-full.jpg','062-PivotMonthly01.jpg','064-a3t3.jpg','064-Table3Data.jpg','066-nature14016-st6.jpg','066-nature14451-st2.jpg','066-validity-sample-size-1.jpg','067-job_2Bdata.jpg','068-table_subdued_grid.jpg','070-Picture-4.jpg',
+        '071-Method-2.jpg','072-qual-quant.jpg.jpg','074-Screenshot_2B2014-12-12_2B10.37.53.jpg','074-youthszie.jpg','075-7gz9w.jpg','076-7262OT_01_18.PNG.jpg','077-Bibliometric-indicators-626x295.jpg','077-imgf000012_0003.jpg','078-soda2.jpg','080-77d467a7-700c-461b-85ae-079abd20244a.jpg','080-nature13893-st2.jpg','080-nj7149-098a-i4.0.jpg','081-db44wz38-1362635734.jpg','081-Sturtevant_1913-T3_large_2.jpg','082-chilldsize.jpg','082-NY107_CRI_001_ex2.jpg','083-a08tab01.jpg','083-GWWGS.jpg','085-renal_disease_table.jpg','086-five.jpg','086-text2-reader-sept2011-23-728.jpg_3Fcb_3D1307910910.jpg','088-5366805_orig.jpg','089-jmcp-article-types.jpg','091-analysis_univ_image010.jpg','092-Data-Table_-_Example.jpg','092-negative-economic-data.jpg','093-competitive_analysis_comp_table.jpg','093-stabina-fig02.jpg','094-txtfig4.jpg','097-f20008.jpg','099-ais2.2.jpg','099-Border-d.jpg','099-introduction.jpg','099-vRWii.jpg'];
+      var curr_info = [-1, -1, 0, 0];
+      var clipboard;
+      $(document).ready(setupLabeler);
+
+      function setupLabeler() {
+        clipboard = new Clipboard('#report_info',
+          {
+            text: getReportInfo
+          }
+        );
+        $('#next_image').click(changeImage);
+        $('#reset_image').click(resetImage);
+        $('#undo_box').click(undoBox);
+        $('#report_info').click(function(e) { e.preventDefault(); });
+
+        $('#table_image').mousedown(startTracking);
+        $(document).mouseup(stopTracking);
+
+        changeImage({preventDefault: function() {}});
+      }
+
+      function undoBox(e) {
+        e.preventDefault();
+        image_info[curr_image].pop();
+        $('#display div').last().remove();
+      }
+
+      function startTracking(e) {
+        e.preventDefault();
+        var offset = $('#table_image').offset();
+        curr_info[0] = e.pageX - offset.left;
+        curr_info[1] = e.pageY - offset.top;
+
+        var rect = $(document.createElement('div'));
+        rect.css(
+          {
+            left: curr_info[0] + 'px',
+            top: curr_info[1] + 'px'
+          }
+        );
+
+        $('#display').append(rect);
+
+        $(document).on('mousemove', updateRect);
+      }
+
+      function updateRect(e) {
+        e.preventDefault();
+        var offset = $('#table_image').offset();
+        curr_info[2] = (e.pageX - offset.left) - curr_info[0];
+        curr_info[3] = (e.pageY - offset.top) - curr_info[1];
+
+        $('#display div').last().css(
+          {
+            width: curr_info[2] + 'px',
+            height: curr_info[3] + 'px'
+          }
+        );
+      }
+
+      function stopTracking(e) {
+        e.preventDefault();
+        if(curr_info[0] != -1) {
+          $(document).off('mousemove');
+          updateRect(e);
+          recordRect();
+          curr_info = [-1, -1, 0, 0];
+        }
+      }
+
+      function recordRect() {
+        var label = prompt('Enter the cell contents:');
+
+        if(label != null) {
+          curr_info.push(label);
+          image_info[curr_image].push(curr_info);
+        } else {
+          $('#display div').last().remove();
+        }
+      }
+
+      function changeImage(e) {
+        e.preventDefault();
+
+        if(curr_image + 1 < images.length) {
+          curr_image++;
+          image_info[curr_image] = [];
+          $('#table_image').attr('src', base_image_url + images[curr_image]);
+        } else {
+          alert('Done!');
+        }
+
+        clearCells();
+      }
+
+      function getReportInfo() {
+        // Go through and report all the saved cell info
+        var output = '';
+        var info;
+        for(var i=0;i<images.length;i++) {
+          if(i in image_info) {
+            info = image_info[i].map(
+              function(curr) {
+                return curr.join(",");
+              }
+            ).join("\\n");
+            output += 'echo -e "' + bashEscape(info) + '" > "' + images[i] + '.txt"\n';
+          }
+        }
+
+        return output;
+      }
+
+      function bashEscape(info) {
+        // Just this for now, but may need to escape others later.
+        return info.replace('!', '\\x21').replace('"', '\\"');
+      }
+
+      function resetImage(e) {
+        e.preventDefault();
+
+        image_info[curr_image] = [];
+
+        clearCells();
+      }
+
+      function clearCells() {
+        $('#display div').remove();
+      }
+    </script>
+    <style type="text/css">
+      ul {
+        text-align: center;
+        list-style-type: none;
+      }
+
+      li {
+        display: inline-block;
+      }
+
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+
+      #display {
+        margin: 50px;
+        position: relative;
+      }
+
+      #display div {
+        position: absolute;
+        background: rgba(255, 100, 50, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <ul>
+      <li>
+        <a href="#" id="report_info">
+          Report Info
+        </a>
+      </li>
+      <li>
+        <a href="#" id="reset_image">
+          Reset Image
+        </a>
+      </li>
+      <li>
+        <a href="#" id="undo_box">
+          Undo Box
+        </a>
+      </li>
+      <li>
+        <a href="#" id="next_image">
+          Next Image
+        </a>
+      </li>
+    </ul>
+    <div id="display">
+      <img id="table_image" />
+    </div>
+  </body>
+</html>

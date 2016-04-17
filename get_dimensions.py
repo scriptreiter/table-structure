@@ -37,7 +37,7 @@ def run_test(images, img_dir, info_dir):
 
     child_boxes, base_box = get_child_boxes(h_boxes, hierarchy, image, img_dir)
 
-    ocr_boxes, raw_boxes = boxer.get_boxes(data, zoom_level, lines, child_boxes)
+    ocr_boxes, raw_boxes = boxer.get_boxes(data, zoom_level, lines, child_boxes, info_dir + 'combos/features/' + image + '.txt')
 
     merged_boxes = boxer.merge_box_groups(child_boxes, ocr_boxes, 0.9, base_box)
 

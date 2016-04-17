@@ -5,26 +5,23 @@ import dir_helper
 
 from sklearn.ensemble import RandomForestClassifier
 
-# Path to files listing box combos in the same order as the labels
-key_path = 'regents/combos/keys/'
-
 # Path to files labeling box combos as merge (1) or no merge (0)
-label_path = 'regents/combos/labels/'
+label_path = 't_out/combos/labels/'
 
 # Path to files keeping box combos and associated features
-feature_path = 'regents/combos/features/'
+feature_path = 't_out/combos/features/'
 
 # Path to save the classifier
-classifier_path = 'regents/classifier.pkl'
+classifier_path = 't_out/classifier/classifier.pkl'
 
 # Path to save the list of files in the training set
-train_set_path = 'regents/train_set.txt'
+train_set_path = 't_out/classifier/train_set.txt'
 
 # Path to save the list of files in the testing set
-test_set_path = 'regents/test_set.txt'
+test_set_path = 't_out/classifier/test_set.txt'
 
 def setup():
-  key_files = [key_file for key_file in os.listdir(key_path)]
+  key_files = [key_file for key_file in os.listdir(feature_path)]
 
   train_labels = []
   test_labels = []

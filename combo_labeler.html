@@ -1,0 +1,168 @@
+<html>
+  <head>
+    <title>
+      Labeler for Training Data
+    </title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(setupLabeler);
+
+      function setupLabeler() {
+        $('#merge').click(markMerge);
+        $('#no_merge').click(markNoMerge);
+        $('#no_more_merge').click(markNoMoreMerge);
+        $('#undo').click(undoMarker);
+        $.get('combos/' + getCurrentImage() + '.txt', handleData);
+        $('#img').attr('src', 'images/' + getCurrentImage());
+      }
+
+      function getCurrentImage() {
+        var param = getParameterByName('image');
+        if(param.indexOf('/') > -1) {
+          return '';
+        }
+
+        return param;
+      }
+
+      function undoMarker(evt) {
+        evt.preventDefault();
+        window.markings.pop();
+        window.current_combo -= 2;
+        nextCombo();
+      }
+
+      function markMerge(evt) {
+        evt.preventDefault();
+
+        window.markings.push(1);
+        nextCombo();
+      }
+
+      function markNoMerge(evt) {
+        evt.preventDefault();
+
+        window.markings.push(0);
+        nextCombo();
+      }
+
+      function markNoMoreMerge(evt) {
+        evt.preventDefault();
+
+        var box_1 = {
+          left: $('#box_1').css('left'),
+          top: $('#box_1').css('top'),
+          width: $('#box_1').css('width'),
+          height: $('#box_1').css('height'),
+        };
+
+        while(box_1.left == $('#box_1').css('left') &&
+              box_1.top == $('#box_1').css('top') &&
+              box_1.width == $('#box_1').css('width') &&
+              box_1.height == $('#box_1').css('height')) {
+          window.markings.push(0);
+
+          if(!nextCombo()) {
+            break;
+          }
+        }
+      }
+
+      function handleData(data) {
+        window.combos = data.split('\n');
+        window.current_combo = -1;
+        window.markings = [];
+        nextCombo();
+      }
+
+      function displayMarkings() {
+        $('#marking_area').html(window.markings.join('<br />'));
+      }
+
+      function nextCombo() {
+        window.current_combo++;
+
+        if(window.current_combo == window.combos.length || window.combos[window.current_combo].length == 0) {
+          alert('Done with this image.');
+          displayMarkings();
+          return false;
+        }
+
+        var box_parts = window.combos[window.current_combo].split(' ');
+
+        var box_1 = $('#box_1');
+        var box_2 = $('#box_2');
+
+        box_1.css(
+          {
+            left: box_parts[0],
+            top: box_parts[1],
+            width: box_parts[2],
+            height: box_parts[3]
+          }
+        );
+
+        box_2.css(
+          {
+            left: box_parts[4],
+            top: box_parts[5],
+            width: box_parts[6],
+            height: box_parts[7]
+          }
+        );
+
+        return true;
+      }
+
+      // Sourced from: http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
+      function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)");
+        var results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+      }
+    </script>
+    <style type="text/css">
+      #display {
+        position: relative;
+      }
+
+      #box_1, #box_2 {
+        position: absolute;
+        outline: solid #F00 1px;
+      }
+
+      #box_2 {
+        outline: solid #0F0 1px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="controls">
+      <a href="#" id="merge" >
+        Merge
+      </a>
+      -
+      <a href="#" id="no_merge">
+        Don't Merge
+      </a>
+      -
+      <a href="#" id="no_more_merge">
+        No More Merges with Red Box First
+      </a>
+      -
+      <a href="#" id="undo">
+        Undo
+      </a>
+    </div>
+    <div id="display">
+      <div id="box_1">
+      </div>
+      <div id="box_2">
+      </div>
+      <img src="" id="img" />
+    </div>
+    <div id="marking_area">
+    </div>
+  </body>
+</html>

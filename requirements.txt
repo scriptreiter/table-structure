@@ -6,3 +6,5 @@ oauth2client==2.0.1
 protobuf==3.0.0b2
 urllib3==1.14
 XlsxWriter==0.8.4
+scikit-learn==0.17.1
+scipy==0.17.0

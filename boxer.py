@@ -1,14 +1,17 @@
 import clusterer
+import dir_helper
 import os
 import operator
 import pickle
 from itertools import combinations
 from functools import cmp_to_key
 
-def get_boxes(data, zoom_level, lines, contour_boxes):
+should_record_features = False
+
+def get_boxes(data, zoom_level, lines, contour_boxes, feature_file):
   raw_boxes = get_boxes_from_json(data, zoom_level)
 
-  combined = combine_boxes(raw_boxes, lines, contour_boxes)
+  combined = combine_boxes(raw_boxes, lines, contour_boxes, feature_file)
 
   return combined, raw_boxes
 
@@ -31,9 +34,9 @@ def get_boxes_from_json(data, zoom_level = 1):
 
   return boxes
 
-def combine_boxes(boxes, lines, contour_boxes):
+def combine_boxes(boxes, lines, contour_boxes, feature_file):
   # To use the classifier, do this:
-  box_classifier_scores = score_boxes(boxes, lines)
+  box_classifier_scores = score_boxes(boxes, lines, feature_file)
 
   box_scores = modify_box_scores(boxes, contour_boxes, box_classifier_scores)
 
@@ -112,8 +115,14 @@ def combine_clustered_boxes(clusters):
 
   return new_boxes
 
-def score_boxes(boxes, lines):
+def score_boxes(boxes, lines, feature_file):
   box_scores = [[0.0 for box in boxes] for box in boxes]
+
+  # Remove since we're appending for now
+  if should_record_features:
+    dir_helper.ensure(feature_file)
+
+    open(feature_file, 'w').close()
 
   with open('classifier.pkl', 'rb') as f:
     classifier = pickle.load(f)
@@ -201,11 +210,22 @@ def score_boxes(boxes, lines):
     features['dist_bw_bottoms'] = abs((box_1[1] + box_1[3]) - (box_2[1] + box_2[3]))
 
     score = get_classifier_score(features, classifier)
+    record_features(box_1, box_2, features, feature_file)
 
     box_scores[i][j] = score
     box_scores[j][i] = score
 
   return box_scores
+
+def record_features(box_1, box_2, features, feature_file):
+  if should_record_features:
+    with open(feature_file, 'a') as f:
+      f.write(','.join([str(x) for x in (box_1[0:4] + box_2[0:4])]))
+
+      for x in sorted(features.keys()):
+        f.write(',' + str(features[x]))
+
+      f.write('\n')
 
 def get_classifier_score(features, classifier):
   features = [features[x] for x in sorted(features.keys())]
