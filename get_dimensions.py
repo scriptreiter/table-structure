@@ -39,7 +39,7 @@ def run_test_image(image, img_dir, info_dir, zoom_prefix):
 
     merged_labels = boxer.merge_ocr_boxes(raw_boxes, [])
 
-    boxes = cloud_api.add_labels(merged_boxes, image_dir + '/' + zoom_prefix, image, info_dir + 'google_cache/' + zoom_prefix, zoom_level, cloud_delay)
+    boxes = cloud_api.add_labels(merged_boxes, img_dir + '/' + zoom_prefix, image, info_dir + 'google_cache/' + zoom_prefix, zoom_level, cloud_delay)
 
     scores = liner.rate_lines(lines, boxes)
 
